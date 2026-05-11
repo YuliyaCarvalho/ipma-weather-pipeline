@@ -1,34 +1,86 @@
 import requests
-
-url = "https://api.ipma.pt/open-data/observation/meteorology/stations/observations.json"
-
-response = requests.get(url)
-data = response.json()
-
-rows = []
-
-for timestamp, stations in data.items():
-    for station_id, fields in stations.items():
-        if fields is None:
-            continue
-        row = {
-            "timestamp": timestamp,
-            "station_id": station_id,
-        }
-        row.update(fields)
-        rows.append(row)
-
-print("Total rows:", len(rows))
-print("First row:", rows[0])
-
+import os
 import json
-none_count = sum(1 for stations in data.values() for fields in stations.values() if fields is None)
-print("None fields count:", none_count)
+from datetime import datetime, timezone
+from google.cloud import bigquery
 
-# check if -99.0 appears anywhere
-minus99_count = sum(
-    1 for row in rows
-    for val in row.values()
-    if val == -99.0
-)
-print("-99.0 values count:", minus99_count)
+# credentials
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "secrets/gcp_key.json"
+
+# config
+PROJECT_ID = "ipma-weather-496012"
+DATASET = "raw"
+TABLE = "observations"
+
+def create_table_if_not_exists(client):
+    schema = [
+        bigquery.SchemaField("timestamp", "STRING"),
+        bigquery.SchemaField("station_id", "STRING"),
+        bigquery.SchemaField("ingested_at", "STRING"),
+        bigquery.SchemaField("intensidadeVentoKM", "FLOAT"),
+        bigquery.SchemaField("intensidadeVento", "FLOAT"),
+        bigquery.SchemaField("idDireccVento", "FLOAT"),
+        bigquery.SchemaField("temperatura", "FLOAT"),
+        bigquery.SchemaField("precAcumulada", "FLOAT"),
+        bigquery.SchemaField("humidade", "FLOAT"),
+        bigquery.SchemaField("pressao", "FLOAT"),
+        bigquery.SchemaField("radiacao", "FLOAT"),
+    ]
+
+    table_ref = f"{PROJECT_ID}.{DATASET}.{TABLE}"
+    table = bigquery.Table(table_ref, schema=schema)
+    client.create_table(table, exists_ok=True)
+    print(f"Table {table_ref} ready")
+
+def fetch_observations():
+    url = "https://api.ipma.pt/open-data/observation/meteorology/stations/observations.json"
+    response = requests.get(url)
+    response.raise_for_status()
+    data = response.json()
+
+    rows = []
+    ingested_at = datetime.now(timezone.utc).isoformat()
+
+    for timestamp, stations in data.items():
+        for station_id, fields in stations.items():
+            if fields is None:
+                continue
+            row = {
+                "timestamp": timestamp,
+                "station_id": station_id,
+                "ingested_at": ingested_at,
+            }
+            row.update(fields)
+            rows.append(row)
+
+    return rows
+
+def load_to_bigquery(client, rows):
+    table_ref = f"{PROJECT_ID}.{DATASET}.{TABLE}"
+
+    tmp_file = "tmp_observations.json"
+    with open(tmp_file, "w") as f:
+        for row in rows:
+            f.write(json.dumps(row) + "\n")
+
+    job_config = bigquery.LoadJobConfig(
+        source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
+        write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+        ignore_unknown_values=True,
+    )
+
+    with open(tmp_file, "rb") as f:
+        job = client.load_table_from_file(f, table_ref, job_config=job_config)
+
+    job.result()
+    print(f"Loaded {len(rows)} rows into {table_ref}")
+
+if __name__ == "__main__":
+    client = bigquery.Client(project=PROJECT_ID)
+    create_table_if_not_exists(client)
+
+    print("Fetching observations...")
+    rows = fetch_observations()
+    print(f"Fetched {len(rows)} rows")
+
+    load_to_bigquery(client, rows)
