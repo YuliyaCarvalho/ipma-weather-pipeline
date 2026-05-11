@@ -4,3 +4,4 @@ __pycache__/
 .env
 secrets/
 tmp_observations.json
+tmp_stations.json
