@@ -1,0 +1,31 @@
+name: IPMA Weather Pipeline
+
+on:
+  schedule:
+    - cron: '0 9 * * *'  # runs every day at 09:00 UTC
+  workflow_dispatch:       # allows manual trigger from GitHub
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create secrets directory
+        run: mkdir -p secrets
+
+      - name: Write GCP credentials
+        run: echo '${{ secrets.GCP_KEY }}' > secrets/gcp_key.json
+
+      - name: Run ingestion script
+        run: python ingestion/ingest.py
