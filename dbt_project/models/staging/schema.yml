@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: stg_observations
+    description: "Cleaned and deduplicated weather observations from IPMA"
+    columns:
+      - name: observed_at
+        description: "Observation timestamp"
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "<= CURRENT_TIMESTAMP()"
+
+      - name: station_id
+        description: "Station identifier"
+        data_tests:
+          - not_null
+
+      - name: temperature_c
+        description: "Air temperature in Celsius, nulled if -99.0"
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+              inclusive: true
+              config:
+                where: "temperature_c IS NOT NULL"
+
+      - name: humidity_pct
+        description: "Relative humidity percentage, nulled if -99.0"
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 100
+              inclusive: true
+              config:
+                where: "humidity_pct IS NOT NULL"
+
+      - name: wind_speed_kmh
+        description: "Wind speed in km/h, nulled if -99.0"
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 220
+              inclusive: true
+              config:
+                where: "wind_speed_kmh IS NOT NULL"
+
+      - name: pressure_hpa
+        description: "Atmospheric pressure in hPa, nulled if -99.0"
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 940
+              max_value: 1060
+              inclusive: true
+              config:
+                where: "pressure_hpa IS NOT NULL"
+
+      - name: wind_direction
+        description: "Decoded wind direction label"
+        data_tests:
+          - accepted_values:
+              values: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'No direction']
+              config:
+                where: "wind_direction IS NOT NULL"
