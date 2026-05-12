@@ -2,8 +2,8 @@ name: IPMA Weather Pipeline
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # runs every day at 09:00 UTC
-  workflow_dispatch:       # allows manual trigger from GitHub
+    - cron: '0 9 * * *'
+  workflow_dispatch:
 
 jobs:
   run-pipeline:
@@ -27,5 +27,17 @@ jobs:
       - name: Write GCP credentials
         run: echo '${{ secrets.GCP_KEY }}' > secrets/gcp_key.json
 
+      - name: Write dbt profiles
+        run: |
+          mkdir -p ~/.dbt
+          echo '${{ secrets.DBT_PROFILES }}' > ~/.dbt/profiles.yml
+
       - name: Run ingestion script
         run: python ingestion/ingest.py
+
+      - name: Run dbt
+        run: |
+          cd dbt_project
+          dbt deps
+          dbt run
+          dbt test
