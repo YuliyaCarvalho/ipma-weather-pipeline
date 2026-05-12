@@ -35,9 +35,9 @@ jobs:
       - name: Run ingestion script
         run: python ingestion/ingest.py
 
-      - name: Run dbt
+       - name: Run dbt
         run: |
           cd dbt_project
-          dbt deps
-          dbt run
-          dbt test
+          python -m dbt deps
+          python -m dbt run
+          python -m dbt test
