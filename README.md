@@ -130,7 +130,6 @@ If any test fails, GitHub Actions marks the run as failed and sends an email not
 ```bash
 git clone https://github.com/YuliyaCarvalho/ipma-weather-pipeline.git
 cd ipma-weather-pipeline
-```
 
 
 # create and activate virtual environment
