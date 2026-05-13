@@ -35,6 +35,9 @@ jobs:
       - name: Run ingestion script
         run: python ingestion/ingest.py
 
+      - name: Find dbt location
+        run: which dbt || find / -name "dbt" -type f 2>/dev/null | head -5
+
       - name: Run dbt
         run: |
           cd dbt_project
