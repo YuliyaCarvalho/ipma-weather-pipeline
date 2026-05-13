@@ -38,6 +38,6 @@ jobs:
       - name: Run dbt
         run: |
           cd dbt_project
-          python dbt deps
-          python dbt run
-          python dbt test
+          ~/.local/bin/dbt deps
+          ~/.local/bin/dbt run
+          ~/.local/bin/dbt test
