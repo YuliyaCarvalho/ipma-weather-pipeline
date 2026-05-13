@@ -19,6 +19,11 @@ final AS (
         st.station_name,
         st.latitude,
         st.longitude,
+        CASE
+            WHEN st.longitude < -25 THEN 'Açores'
+            WHEN st.latitude < 33 THEN 'Madeira'
+            ELSE 'Continental'
+        END AS region,
         s.temperature_c,
         s.humidity_pct,
         s.precipitation_mm,
