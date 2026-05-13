@@ -35,12 +35,9 @@ jobs:
       - name: Run ingestion script
         run: python ingestion/ingest.py
 
-      - name: Find dbt location
-        run: which dbt || find / -name "dbt" -type f 2>/dev/null | head -5
-
       - name: Run dbt
         run: |
           cd dbt_project
-          ~/.local/bin/dbt deps
-          ~/.local/bin/dbt run
-          ~/.local/bin/dbt test
+          /opt/hostedtoolcache/Python/3.13.13/x64/bin/dbt deps
+          /opt/hostedtoolcache/Python/3.13.13/x64/bin/dbt run
+          /opt/hostedtoolcache/Python/3.13.13/x64/bin/dbt test
