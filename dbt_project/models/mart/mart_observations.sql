@@ -21,7 +21,7 @@ final AS (
         st.longitude,
         CASE
             WHEN st.longitude < -25 THEN 'Açores'
-            WHEN st.latitude < 33 THEN 'Madeira'
+            WHEN st.latitude < 33.5 AND st.longitude < -15 THEN 'Madeira'
             ELSE 'Continental'
         END AS region,
         s.temperature_c,
