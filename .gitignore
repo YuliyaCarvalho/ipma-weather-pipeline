@@ -5,3 +5,5 @@ __pycache__/
 secrets/
 tmp_observations.json
 tmp_stations.json
+.streamlit/
+*.toml

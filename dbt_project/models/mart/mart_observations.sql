@@ -22,9 +22,10 @@ final AS (
         CASE
             WHEN st.longitude < -25 THEN 'Açores'
             WHEN st.latitude < 33.5 AND st.longitude < -15 THEN 'Madeira'
-            WHEN st.latitude < 37.5 AND st.longitude < -7.4 THEN 'Algarve'
-            WHEN st.latitude < 38.5 AND st.longitude > -8.0 THEN 'Alentejo'
-            WHEN st.latitude BETWEEN 38.5 AND 39.5 THEN 'Lisboa e Vale do Tejo'
+            WHEN st.latitude < 37.5 THEN 'Algarve'
+            WHEN st.latitude < 38.5 THEN 'Alentejo'
+            WHEN st.latitude BETWEEN 38.5 AND 39.5 AND st.longitude > -8.5 THEN 'Alentejo'
+            WHEN st.latitude BETWEEN 38.5 AND 39.5 AND st.longitude <= -8.5 THEN 'Lisboa e Vale do Tejo'
             WHEN st.latitude BETWEEN 39.5 AND 40.5 THEN 'Centro'
             WHEN st.latitude > 40.5 THEN 'Norte'
             ELSE 'Centro'
