@@ -1,7 +1,0 @@
-streamlit
-plotly
-google-cloud-bigquery
-google-auth
-pandas
-pytz
-requests
