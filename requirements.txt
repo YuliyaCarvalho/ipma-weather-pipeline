@@ -97,3 +97,5 @@ tzdata==2026.2
 urllib3==2.7.0
 websockets==16.0
 zipp==3.23.1
+streamlit==1.49.1
+plotly==6.3.1
