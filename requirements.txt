@@ -5,3 +5,5 @@ google-auth
 pandas
 pytz
 requests
+db-dtypes
+pyarrow
