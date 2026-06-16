@@ -526,8 +526,8 @@ def fetch_station_recent(station_id: str) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=86_400, show_spinner=False)
-def fetch_nuts2_geojson() -> dict:
-    r = requests.get(NUTS2_GEOJSON_URL, timeout=20)
+def fetch_nuts2_geojson(url: str = NUTS2_GEOJSON_URL) -> dict:
+    r = requests.get(url, timeout=20)
     r.raise_for_status()
     gj = r.json()
     feats = []
@@ -915,7 +915,7 @@ with col_center:
         map_center = {"lat": clat, "lon": clon}
         map_zoom = region_zoom
 
-    fig = go.Figure(go.Choroplethmap(
+    fig = go.Figure(go.Choroplethmapbox(
         geojson=geojson,
         locations=region_avg["region"],
         z=region_avg["avg_temp_c"],
@@ -935,7 +935,7 @@ with col_center:
         ),
     ))
     fig.update_layout(
-        map=dict(
+        mapbox=dict(
             style="carto-darkmatter",
             center={"lat": map_center["lat"], "lon": map_center["lon"]},
             zoom=map_zoom,
@@ -969,13 +969,13 @@ with col_center:
         label_texts.append(f"{r}<br>{temp_lbl}")
 
     if all_lats:
-        fig.add_trace(go.Scattermap(
+        fig.add_trace(go.Scattermapbox(
             lat=all_lats, lon=all_lons, mode="lines",
             line=dict(width=3, color="#00f5ff"), opacity=1.0,
             hoverinfo="skip", showlegend=False,
         ))
     if label_lats:
-        fig.add_trace(go.Scattermap(
+        fig.add_trace(go.Scattermapbox(
             lat=label_lats, lon=label_lons, mode="text", text=label_texts,
             textfont=dict(size=14, color="#ffffff", family="JetBrains Mono, monospace"),
             hoverinfo="skip", showlegend=False,
@@ -987,14 +987,14 @@ with col_center:
         inactive_df = region_df[~region_df["is_active"]]
 
         if not inactive_df.empty:
-            fig.add_trace(go.Scattermap(
+            fig.add_trace(go.Scattermapbox(
                 lat=inactive_df["latitude"], lon=inactive_df["longitude"], mode="markers",
                 marker=dict(size=6, color="#3d444d", opacity=0.4),
                 hovertext=inactive_df["station_name"], hoverinfo="text",
                 name=S["inactive_stations"], showlegend=False,
             ))
         if not active_df.empty:
-            fig.add_trace(go.Scattermap(
+            fig.add_trace(go.Scattermapbox(
                 lat=active_df["latitude"], lon=active_df["longitude"], mode="markers",
                 marker=dict(
                     size=10, color=active_df["temperature_c"],
@@ -1009,12 +1009,12 @@ with col_center:
 
         if station_row is not None:
             for sz, op in [(36, 0.28), (14, 0.55)]:
-                fig.add_trace(go.Scattermap(
+                fig.add_trace(go.Scattermapbox(
                     lat=[station_row["latitude"]], lon=[station_row["longitude"]], mode="markers",
                     marker=dict(size=sz, color="#bf5af2", opacity=op),
                     hoverinfo="skip", showlegend=False,
                 ))
-            fig.add_trace(go.Scattermap(
+            fig.add_trace(go.Scattermapbox(
                 lat=[station_row["latitude"]], lon=[station_row["longitude"]], mode="markers",
                 marker=dict(size=7, color="#ffffff"),
                 hovertext=[f"★ {station_row['station_name']}"],
