@@ -18,9 +18,7 @@ from google.cloud import bigquery
 from google.oauth2 import service_account
 
 
-# ---------------------------------------------------------------------------
 # CONFIG
-# ---------------------------------------------------------------------------
 
 PROJECT_ID = "ipma-weather-496012"
 DATASET = "mart"
@@ -137,9 +135,7 @@ TEMP_COLORSCALE = [
 ]
 
 
-# ---------------------------------------------------------------------------
 # I18N
-# ---------------------------------------------------------------------------
 
 STRINGS = {
     "EN": {
@@ -227,9 +223,7 @@ STRINGS = {
 }
 
 
-# ---------------------------------------------------------------------------
 # PAGE
-# ---------------------------------------------------------------------------
 
 st.set_page_config(
     page_title="IPMA Weather · Portugal",
@@ -438,9 +432,7 @@ st.markdown(
 )
 
 
-# ---------------------------------------------------------------------------
 # SESSION STATE
-# ---------------------------------------------------------------------------
 
 if "lang" not in st.session_state:
     st.session_state["lang"] = "EN"
@@ -450,9 +442,7 @@ if "station" not in st.session_state:
     st.session_state["station"] = None
 
 
-# ---------------------------------------------------------------------------
 # QUERY-PARAM SYNC
-# ---------------------------------------------------------------------------
 
 _qp = st.query_params
 
@@ -469,9 +459,7 @@ if "region" in _qp:
         st.session_state["station"] = None
 
 
-# ---------------------------------------------------------------------------
 # AUTH + BIGQUERY
-# ---------------------------------------------------------------------------
 
 @st.cache_resource(show_spinner=False)
 def get_bq_client() -> bigquery.Client:
@@ -568,9 +556,8 @@ def fetch_forecast(location_id: int) -> list:
         return []
 
 
-# ---------------------------------------------------------------------------
+
 # HELPERS
-# ---------------------------------------------------------------------------
 
 def greeting_word(hour: int, lang: str) -> str:
     s = STRINGS[lang]
@@ -731,9 +718,7 @@ def render_forecast_pills(data: list, lang: str, s: dict, city_name: str) -> str
     return html
 
 
-# ---------------------------------------------------------------------------
 # TOP BAR  (rendered after data so rain count is available)
-# ---------------------------------------------------------------------------
 
 now_lisbon = datetime.now(LISBON_TZ)
 lang = st.session_state["lang"]
@@ -744,9 +729,8 @@ en_sel = "sel" if lang == "EN" else ""
 pt_sel = "sel" if lang == "PT" else ""
 
 
-# ---------------------------------------------------------------------------
+
 # DATA
-# ---------------------------------------------------------------------------
 
 with st.spinner(S["loading"]):
     df = fetch_current_conditions()
@@ -805,9 +789,8 @@ st.markdown(
 )
 
 
-# ---------------------------------------------------------------------------
+
 # SELECTED STATION + FORECAST LOCATION
-# ---------------------------------------------------------------------------
 
 selected_region = st.session_state["region"]
 selected_station_id = st.session_state["station"]
@@ -831,9 +814,8 @@ forecast_city = IPMA_CITIES[forecast_loc][0] if forecast_loc in IPMA_CITIES else
 forecast_data = fetch_forecast(forecast_loc)
 
 
-# ---------------------------------------------------------------------------
+
 # MAIN LAYOUT — columns 2 / 5 / 3
-# ---------------------------------------------------------------------------
 
 col_left, col_center, col_right = st.columns([2, 5, 3], gap="large")
 
@@ -1163,9 +1145,8 @@ with col_right:
             st.plotly_chart(chart, use_container_width=True, config={"displayModeBar": False})
 
 
-# ---------------------------------------------------------------------------
+
 # FORECAST STRIP — horizontal, below left+center columns, right edge = map edge
-# ---------------------------------------------------------------------------
 
 st.markdown("<div style='margin-top:-14px'>", unsafe_allow_html=True)
 fc_col, _ = st.columns([7, 3], gap="large")
@@ -1176,9 +1157,8 @@ with fc_col:
 st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ---------------------------------------------------------------------------
+
 # FOOTER
-# ---------------------------------------------------------------------------
 
 ago_min = max(0, int((datetime.now(pytz.UTC) - max_observed.to_pydatetime()).total_seconds() // 60))
 observed_str = max_observed.tz_convert(LISBON_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
