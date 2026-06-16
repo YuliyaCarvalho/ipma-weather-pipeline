@@ -26,7 +26,7 @@ VIEW_CURRENT = "current_conditions"
 VIEW_OBS = "mart_observations"
 
 NUTS2_GEOJSON_URL = (
-    "https://raw.githubusercontent.com/eurostat/Nuts2json/master/pub/v2/2021/4326/10M/2.json"
+    "https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_RG_10M_2021_4326_LEVL_2.geojson"
 )
 
 NUTS2_TO_REGION = {
@@ -532,7 +532,7 @@ def fetch_nuts2_geojson() -> dict:
     gj = r.json()
     feats = []
     for f in gj.get("features", []):
-        nuts_id = f.get("properties", {}).get("id", "")
+        nuts_id = f.get("properties", {}).get("NUTS_ID", "")
         if not nuts_id.startswith("PT"):
             continue
         region_name = NUTS2_TO_REGION.get(nuts_id)
