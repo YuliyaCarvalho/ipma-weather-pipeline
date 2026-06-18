@@ -40,6 +40,6 @@ jobs:
           DBT_KEYFILE_PATH: /home/runner/work/ipma-weather-pipeline/ipma-weather-pipeline/secrets/gcp_key.json
         run: |
           cd dbt_project
-          /opt/hostedtoolcache/Python/3.13.13/x64/bin/dbt deps
-          /opt/hostedtoolcache/Python/3.13.13/x64/bin/dbt run
-          /opt/hostedtoolcache/Python/3.13.13/x64/bin/dbt test
+          dbt deps
+          dbt run
+          dbt test
